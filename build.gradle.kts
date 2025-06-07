@@ -1,10 +1,11 @@
 plugins {
     java
     id("maven-publish")
+    id("com.gradleup.shadow") version "9.0.0-beta12"
 }
 
 group = "me.drownek"
-version = "2.0"
+version = "2.1"
 
 dependencies {
     implementation("com.github.cryptomorin:XSeries:10.0.0")
@@ -35,7 +36,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             println("Publishing as ${listOf(groupId, artifactId, version).joinToString(":") { it ?: "NONE"}}")
-            from(components["java"])
+            artifact(tasks["shadowJar"])
         }
     }
 }

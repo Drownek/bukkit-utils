@@ -1,6 +1,8 @@
 package me.drownek.util;
 
 import com.cryptomorin.xseries.XMaterial;
+import dev.triumphteam.gui.builder.gui.BaseGuiBuilder;
+import dev.triumphteam.gui.builder.gui.PaginatedBuilder;
 import dev.triumphteam.gui.builder.gui.SimpleBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
@@ -31,6 +33,23 @@ public class GuiSettings extends OkaeriConfig {
 
     public SimpleBuilder toGuiBuilder() {
         return Gui.gui()
+            .title(TextUtil.component(this.title))
+            .rows(this.rows)
+            .apply(gui -> {
+                if (this.fillGui) {
+                    gui.getFiller().fillBorder(new GuiItem(this.filler));
+                }
+                gui.setOpenGuiAction(event -> {
+                    Player player = (Player) event.getPlayer();
+                    Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(GuiSettings.class), () -> {
+                        GuiUtil.setGuiTexture(player, this.guiTexture);
+                    }, 1L);
+                });
+            });
+    }
+
+    public PaginatedBuilder toPaginatedGuiBuilder() {
+        return Gui.paginated()
             .title(TextUtil.component(this.title))
             .rows(this.rows)
             .apply(gui -> {
