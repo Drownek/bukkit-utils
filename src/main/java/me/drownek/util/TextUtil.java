@@ -1,8 +1,11 @@
 package me.drownek.util;
 
+import me.drownek.util.adventure.LegacyPostProcessor;
+import me.drownek.util.adventure.LegacyPreProcessor;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -14,9 +17,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
-import me.drownek.util.adventure.LegacyPostProcessor;
-import me.drownek.util.adventure.LegacyPreProcessor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
@@ -87,7 +87,7 @@ public final class TextUtil {
         if (text == null || text.isEmpty()) {
             return Component.empty();
         }
-        return miniMessage.deserialize(text);
+        return resetItalic(miniMessage.deserialize(text));
     }
 
     public static Component component(final List<String> text) {
@@ -180,5 +180,9 @@ public final class TextUtil {
 
     public static Component clickableLocation(Location location) {
         return miniMessage.deserialize(clickableLocationRaw(location));
+    }
+
+    public static Component resetItalic(Component component) {
+        return component.decoration(TextDecoration.ITALIC, false);
     }
 }

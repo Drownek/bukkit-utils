@@ -5,6 +5,7 @@ import dev.triumphteam.gui.components.GuiAction;
 import dev.triumphteam.gui.guis.GuiItem;
 import eu.okaeri.configs.OkaeriConfig;
 import lombok.Getter;
+import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -34,7 +35,7 @@ public class DataItemStack extends OkaeriConfig {
         this(ItemStackBuilder.of(XMaterial.PAPER).name(name).asItemStack());
     }
 
-    public DataItemStack with(String key, Object value) {
+    public DataItemStack withList(@NonNull String key, @NonNull List<@NonNull ?> values) {
         ItemStack stack = this.itemStack.clone();
         var itemMeta = stack.getItemMeta();
 
@@ -42,20 +43,35 @@ public class DataItemStack extends OkaeriConfig {
             return this;
         }
 
-        if (itemMeta.hasDisplayName()) {
-            itemMeta.setDisplayName(itemMeta.getDisplayName().replace(key, value.toString()));
+        if (itemMeta.hasDisplayName() && values.size() == 1) {
+            itemMeta.setDisplayName(itemMeta.getDisplayName().replace(key, values.get(0).toString()));
         }
 
         if (itemMeta.hasLore()) {
             List<String> lore = itemMeta.getLore();
             if (lore != null) {
-                lore.replaceAll(s -> s.replace(key, value.toString()));
-                itemMeta.setLore(lore);
+                List<String> newLore = new java.util.ArrayList<>();
+
+                for (String line : lore) {
+                    if (line.contains(key)) {
+                        for (Object value : values) {
+                            newLore.add(line.replace(key, value.toString()));
+                        }
+                    } else {
+                        newLore.add(line);
+                    }
+                }
+
+                itemMeta.setLore(newLore);
             }
         }
 
         stack.setItemMeta(itemMeta);
         return new DataItemStack(stack);
+    }
+
+    public DataItemStack with(@NonNull String key, @NonNull Object value) {
+        return withList(key, List.of(value));
     }
 
     public DataItemStack with(Map<String, Object> replacements) {

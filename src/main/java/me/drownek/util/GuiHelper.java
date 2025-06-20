@@ -18,10 +18,13 @@ public final class GuiHelper {
     public static final ItemStack PREVIOUS_ITEM;
     public static final ItemStack BACK_ITEM;
 
+    public static final String NEXT_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODFhNGI1ZTg4MDVhYmZhY2VjMzIwNjU0ODllZjExZmNjZWUzZjUxYmVmZGRkMzE3MTQ3NzNmNzE0ZTdiMjczIn19fQ==";
+    public static final String PREVIOUS_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzZhOGQyOTIxOWUyYzljODQ5NTQ2OTNiODdmMzdhZWNlM2MyNzFkNTdmYjZhMmQ3MWZhZmUzOWYwYjgwNDAifX19";
+
     static {
-        BACK_ITEM = ItemStackBuilder.of(Material.ARROW).name("&cPowrot").asItemStack();
-        NEXT_ITEM = ItemBuilder.skull().texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODFhNGI1ZTg4MDVhYmZhY2VjMzIwNjU0ODllZjExZmNjZWUzZjUxYmVmZGRkMzE3MTQ3NzNmNzE0ZTdiMjczIn19fQ==").name(TextUtil.component("&aNastepna strona")).build();
-        PREVIOUS_ITEM = ItemBuilder.skull().texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzZhOGQyOTIxOWUyYzljODQ5NTQ2OTNiODdmMzdhZWNlM2MyNzFkNTdmYjZhMmQ3MWZhZmUzOWYwYjgwNDAifX19").name(TextUtil.component("&cPoprzednia strona")).build();
+        BACK_ITEM = ItemStackBuilder.of(Material.ARROW).name("&cBack").asItemStack();
+        NEXT_ITEM = ItemBuilder.skull().texture(NEXT_TEXTURE).name(TextUtil.component("&aNext page")).build();
+        PREVIOUS_ITEM = ItemBuilder.skull().texture(PREVIOUS_TEXTURE).name(TextUtil.component("&cPrevious page")).build();
     }
 
     private GuiHelper() {

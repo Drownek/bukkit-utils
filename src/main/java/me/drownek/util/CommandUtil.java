@@ -21,10 +21,10 @@ import java.util.stream.Stream;
 @UtilityClass
 public class CommandUtil {
 
-    public static final String SUCCESS_MESSAGE = "&aSukces!";
-    public static final String INVALID_ELEMENT = "&cNieprawidłowy element!";
-    public static final String ELEMENT_MISSING = "&cNie ma takiego elementu na liście!";
-    public static final String ELEMENT_ALREADY_EXIST = "&cElement już jest na liście!";
+    public static final String SUCCESS_MESSAGE = "&aSuccess!";
+    public static final String INVALID_ELEMENT = "&cWrong item!";
+    public static final String ELEMENT_MISSING = "&cThere is no such item in the list!";
+    public static final String ELEMENT_ALREADY_EXIST = "&cThe item is already on the list!";
 
     /*
      * Remove actions
