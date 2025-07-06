@@ -1,4 +1,4 @@
-package me.drownek.util;
+package me.drownek.util.gui;
 
 import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import dev.lone.itemsadder.api.FontImages.TexturedInventoryWrapper;

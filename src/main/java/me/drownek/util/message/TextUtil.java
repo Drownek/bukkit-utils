@@ -1,7 +1,9 @@
-package me.drownek.util;
+package me.drownek.util.message;
 
 import me.drownek.util.adventure.LegacyPostProcessor;
 import me.drownek.util.adventure.LegacyPreProcessor;
+import me.drownek.util.localization.LocalizationManager;
+import me.drownek.util.localization.MessageKey;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -20,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 public final class TextUtil {
@@ -54,14 +57,14 @@ public final class TextUtil {
 
     public static String prettyFormatLocation(Location location) {
         if (location == null) {
-            return "Brak.";
+            return LocalizationManager.getMessage(MessageKey.TEXT_UTIL_NOTHING);
         }
         return prettyFormatLocation(location.getX(), location.getY(), location.getZ());
     }
 
     public static String prettyFormatItemStack(ItemStack item) {
         if (item == null) {
-            return "Brak.";
+            return LocalizationManager.getMessage(MessageKey.TEXT_UTIL_NOTHING);
         }
 
         ItemMeta meta = item.getItemMeta();
@@ -128,19 +131,13 @@ public final class TextUtil {
         final StringBuilder builder = new StringBuilder();
         if (current > max) {
             builder.append(completedColor);
-            for (int i = 0; i < bars; ++i) {
-                builder.append(symbol);
-            }
+            builder.append(String.valueOf(symbol).repeat(Math.max(0, bars)));
             return builder.toString();
         }
         builder.append(completedColor.toString());
-        for (int i = 0; i < progressBars; ++i) {
-            builder.append(symbol);
-        }
+        builder.append(String.valueOf(symbol).repeat(Math.max(0, progressBars)));
         builder.append(notCompletedColor.toString());
-        for (int i = 0; i < leftOver; ++i) {
-            builder.append(symbol);
-        }
+        builder.append(String.valueOf(symbol).repeat(Math.max(0, leftOver)));
         return builder.toString();
     }
 
@@ -151,31 +148,26 @@ public final class TextUtil {
         final StringBuilder builder = new StringBuilder();
         if (current > max) {
             builder.append(completedColor);
-            for (int i = 0; i < bars; ++i) {
-                builder.append(symbol);
-            }
+            builder.append(String.valueOf(symbol).repeat(Math.max(0, bars)));
             return builder.toString();
         }
-        builder.append(completedColor.toString());
-        for (int i = 0; i < progressBars; ++i) {
-            builder.append(symbol);
-        }
-        builder.append(notCompletedColor.toString());
-        for (int i = 0; i < leftOver; ++i) {
-            builder.append(symbol);
-        }
+        builder.append(completedColor);
+        builder.append(String.valueOf(symbol).repeat(Math.max(0, progressBars)));
+        builder.append(notCompletedColor);
+        builder.append(String.valueOf(symbol).repeat(Math.max(0, leftOver)));
         return builder.toString();
     }
 
     public static String clickableLocationRaw(Location location) {
-        String command = String.format("/tp %s %s %s", location.getX(), location.getY(), location.getZ());
-        String hoverText = "Kliknij, by przeteleportować";
-        String locationText = TextUtil.prettyFormatLocation(location);
+        double x = location.getX();
+        double y = location.getY();
+        double z = location.getZ();
 
-        return String.format(
-            "<click:run_command:%s><hover:show_text:%s><green>%s</hover></click>",
-            command, hoverText, locationText
-        );
+        return LocalizationManager.getMessage(MessageKey.TEXT_UTIL_LOCATION_TELEPORT_FORMAT, Map.of(
+                "{x}", x,
+                "{y}", y,
+                "{z}", z
+        ));
     }
 
     public static Component clickableLocation(Location location) {

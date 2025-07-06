@@ -1,5 +1,8 @@
 package me.drownek.util;
 
+import me.drownek.util.localization.LocalizationManager;
+import me.drownek.util.localization.MessageKey;
+
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
@@ -15,14 +18,14 @@ public final class TimeUtil {
 
     public static String formatTimeMillisToDate(final long millis) {
         if (millis < 0L) {
-            return "nigdy";
+            return LocalizationManager.getMessage(MessageKey.TIME_UTIL_NEVER);
         }
         return new SimpleDateFormat("HH:mm:ss dd.MM.yyyy").format(new Date(millis));
     }
 
     public static String formatTimeMillis(final long millis) {
         if (millis == -1L) {
-            return "nigdy";
+            return LocalizationManager.getMessage(MessageKey.TIME_UTIL_NEVER);
         }
         long seconds = millis / 1000L;
         if (seconds <= 0L) {

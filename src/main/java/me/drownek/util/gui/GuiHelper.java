@@ -1,10 +1,14 @@
-package me.drownek.util;
+package me.drownek.util.gui;
 
 import com.cryptomorin.xseries.XMaterial;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
+import me.drownek.util.ItemStackBuilder;
+import me.drownek.util.localization.LocalizationManager;
+import me.drownek.util.localization.MessageKey;
+import me.drownek.util.message.TextUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -22,18 +26,32 @@ public final class GuiHelper {
     public static final String PREVIOUS_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzZhOGQyOTIxOWUyYzljODQ5NTQ2OTNiODdmMzdhZWNlM2MyNzFkNTdmYjZhMmQ3MWZhZmUzOWYwYjgwNDAifX19";
 
     static {
-        BACK_ITEM = ItemStackBuilder.of(Material.ARROW).name("&cBack").asItemStack();
-        NEXT_ITEM = ItemBuilder.skull().texture(NEXT_TEXTURE).name(TextUtil.component("&aNext page")).build();
-        PREVIOUS_ITEM = ItemBuilder.skull().texture(PREVIOUS_TEXTURE).name(TextUtil.component("&cPrevious page")).build();
+        BACK_ITEM = ItemStackBuilder.of(Material.ARROW)
+            .name(LocalizationManager.getMessage(MessageKey.GUI_HELPER_BACK))
+            .asItemStack();
+        NEXT_ITEM = ItemBuilder.skull().texture(NEXT_TEXTURE)
+            .name(TextUtil.component(LocalizationManager.getMessage(MessageKey.GUI_HELPER_NEXT)))
+            .build();
+        PREVIOUS_ITEM = ItemBuilder.skull().texture(PREVIOUS_TEXTURE)
+            .name(TextUtil.component(LocalizationManager.getMessage(MessageKey.GUI_HELPER_PREVIOUS)))
+            .build();
     }
 
     private GuiHelper() {
     }
 
+    /**
+     * @deprecated use PaginatedGuiSettings
+     */
+    @Deprecated
     public static PaginatedGui defaultPaginatedGui(String title, Consumer<PaginatedGui> consumer) {
         return defaultPaginatedGui(title, null, consumer);
     }
 
+    /**
+     * @deprecated use PaginatedGuiSettings
+     */
+    @Deprecated
     public static PaginatedGui defaultPaginatedGui(String title, Runnable backAction, Consumer<PaginatedGui> consumer) {
         PaginatedGui gui = Gui.paginated().rows(6).title(Component.empty()).pageSize(28).disableAllInteractions().create();
 

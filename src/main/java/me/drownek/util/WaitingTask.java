@@ -1,7 +1,10 @@
 package me.drownek.util;
 
+import lombok.ToString;
+import me.drownek.util.localization.LocalizationManager;
+import me.drownek.util.localization.MessageKey;
+import me.drownek.util.message.TextUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -11,6 +14,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Duration;
@@ -38,12 +42,9 @@ public class WaitingTask extends BukkitRunnable implements Listener {
         this.duration = duration.toSeconds();
         this.successAction = successAction;
         this.failAction = failAction;
-        this.plugin = plugin;
+        this.plugin = plugin == null ? JavaPlugin.getProvidingPlugin(WaitingTask.class) : plugin;
         this.withoutCancel = withoutCancel;
         this.withoutProgressBar = withoutProgressBar;
-        if (customListeners == null) {
-            customListeners = new ArrayList<>();
-        }
         this.customListeners = customListeners;
     }
 
@@ -53,7 +54,7 @@ public class WaitingTask extends BukkitRunnable implements Listener {
 
     public void start(Player player) {
         if (players.contains(player.getUniqueId())) {
-            TextUtil.message(player, "&cJesteś już podczas wykonywania akcji!");
+            TextUtil.message(player, LocalizationManager.getMessage(MessageKey.WAITING_TASK_ALREADY_DOING_ACTION));
             return;
         }
 
@@ -120,11 +121,12 @@ public class WaitingTask extends BukkitRunnable implements Listener {
             return;
         }
 
-        Component subtitle = this.withoutProgressBar ? Component.empty() : Component.text(TextUtil.progressBar((int) this.finishState, 100, 50, '|', ChatColor.GREEN, ChatColor.GRAY));
+        Component subtitle = this.withoutProgressBar ? Component.empty() : TextUtil.component(TextUtil.progressBar((int) this.finishState, 100, 50, '|', ChatColor.GREEN, ChatColor.GRAY));
         Title title = Title.title(Component.text(this.actionName), subtitle, Title.Times.times(Duration.ZERO, Duration.ofSeconds(1), Duration.ZERO));
         TextUtil.adventure.sender(this.player).showTitle(title);
 
-        TextComponent actionBar = Component.text("Naciśnij ").append(Component.keybind("key.sneak")).append(Component.text(" aby przerwać"));
+        var keybind = TextUtil.miniMessage.serialize(Component.keybind("key.sneak"));
+        Component actionBar = TextUtil.component(LocalizationManager.getMessage(MessageKey.WAITING_TASK_SNEAK_TO_CANCEL, Map.of("{keybind}", keybind)));
         TextUtil.adventure.sender(this.player).sendActionBar(actionBar);
 
         this.finishState += (100.0 / this.duration) / 20.0;
@@ -142,16 +144,17 @@ public class WaitingTask extends BukkitRunnable implements Listener {
 
         Bukkit.getScheduler().cancelTask(this.getTaskId());
         HandlerList.unregisterAll(this.listener);
-        this.customListeners.forEach(it -> HandlerList.unregisterAll(it));
+        this.customListeners.forEach(HandlerList::unregisterAll);
     }
 
+    @ToString
     public static class WaitingTaskBuilder {
         private Plugin plugin;
         private String actionName;
         private Duration duration;
         private Runnable successAction;
         private Runnable failAction;
-        private List<Listener> customListeners;
+        private List<Listener> customListeners = new ArrayList<>();
         private boolean withoutCancel = false;
         private boolean withoutProgressBar = false;
 
@@ -200,10 +203,6 @@ public class WaitingTask extends BukkitRunnable implements Listener {
 
         public WaitingTask build() {
             return new WaitingTask(this.plugin, this.actionName, this.duration, this.successAction, this.failAction, this.customListeners, this.withoutCancel, this.withoutProgressBar);
-        }
-
-        public String toString() {
-            return "WaitingTask.WaitingTaskBuilder(plugin=" + this.plugin + ", actionName=" + this.actionName + ", duration=" + this.duration + ", successAction=" + this.successAction + ", failAction=" + this.failAction + ", customListeners=" + this.customListeners + ", withoutCancel=" + this.withoutCancel + ")";
         }
     }
 }

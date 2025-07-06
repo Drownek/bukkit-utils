@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.drownek.util;
+package me.drownek.util.message;
 
 import java.util.*;
 import java.util.function.Supplier;

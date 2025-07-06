@@ -1,4 +1,4 @@
-package me.drownek.util;
+package me.drownek.util.gui;
 
 import com.cryptomorin.xseries.XMaterial;
 import dev.triumphteam.gui.builder.gui.SimpleBuilder;
@@ -9,6 +9,10 @@ import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.Exclude;
 import lombok.Builder;
 import lombok.NonNull;
+import me.drownek.util.itemsadder.PluginUtil;
+import me.drownek.util.localization.LocalizationManager;
+import me.drownek.util.localization.MessageKey;
+import me.drownek.util.message.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Builder(toBuilder = true)
 public class ConfirmationGuiSettings extends OkaeriConfig {
@@ -27,13 +32,18 @@ public class ConfirmationGuiSettings extends OkaeriConfig {
     public static final @Exclude List<@NotNull Integer> INFO_SLOTS = List.of(13);
 
     @Builder.Default
-    private GuiItemInfo yesItem = new GuiItemInfo(YES_SLOTS, XMaterial.PAPER, "&aTak").makeInvisible();
+    private GuiItemInfo infoItem = new GuiItemInfo(INFO_SLOTS, XMaterial.OAK_SIGN, LocalizationManager.getMessage(MessageKey.CONFIRM_GUI_ARE_YOU_SURE));
 
     @Builder.Default
-    private GuiItemInfo infoItem = new GuiItemInfo(INFO_SLOTS, XMaterial.OAK_SIGN, "&cCzy na pewno?");
+    private GuiItemInfo yesItem = createConditionalInvisibleItem(YES_SLOTS, LocalizationManager.getMessage(MessageKey.CONFIRM_GUI_YES));
 
     @Builder.Default
-    private GuiItemInfo noItem = new GuiItemInfo(NO_SLOTS, XMaterial.PAPER, "&cNie").makeInvisible();
+    private GuiItemInfo noItem = createConditionalInvisibleItem(NO_SLOTS, LocalizationManager.getMessage(MessageKey.CONFIRM_GUI_NO));
+
+    private static GuiItemInfo createConditionalInvisibleItem(List<Integer> slots, String name) {
+        GuiItemInfo item = new GuiItemInfo(slots, XMaterial.PAPER, name);
+        return PluginUtil.isItemsAdderPresent() ? item.makeInvisible() : item;
+    }
 
     @Builder.Default
     private String title = " ";
@@ -53,6 +63,11 @@ public class ConfirmationGuiSettings extends OkaeriConfig {
     // Transient fields for actions
     private transient GuiAction<InventoryClickEvent> yesAction;
     private transient GuiAction<InventoryClickEvent> noAction;
+
+    public ConfirmationGuiSettings apply(@NonNull Consumer<ConfirmationGuiSettings> consumer) {
+        consumer.accept(this);
+        return this;
+    }
 
     public ConfirmationGuiSettings yesItem(@NonNull GuiItemInfo yesItem) {
         return this.toBuilder()
@@ -126,12 +141,14 @@ public class ConfirmationGuiSettings extends OkaeriConfig {
                 if (this.fillGui) {
                     gui.getFiller().fillBorder(new GuiItem(this.filler));
                 }
-                gui.setOpenGuiAction(event -> {
-                    Player player = (Player) event.getPlayer();
-                    Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(ConfirmationGuiSettings.class), () -> {
-                        GuiUtil.setGuiTexture(player, this.guiTexture);
-                    }, 1L);
-                });
+                if (PluginUtil.isItemsAdderPresent()) {
+                    gui.setOpenGuiAction(event -> {
+                        Player player = (Player) event.getPlayer();
+                        Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(ConfirmationGuiSettings.class), () -> {
+                            GuiUtil.setGuiTexture(player, this.guiTexture);
+                        }, 1L);
+                    });
+                }
             });
     }
 

@@ -6,12 +6,14 @@ import dev.triumphteam.gui.guis.GuiItem;
 import eu.okaeri.configs.OkaeriConfig;
 import lombok.Getter;
 import lombok.NonNull;
+import me.drownek.util.gui.GuiItemInfo;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter
@@ -80,6 +82,26 @@ public class DataItemStack extends OkaeriConfig {
             modifiedStack = modifiedStack.with(entry.getKey(), entry.getValue());
         }
         return modifiedStack;
+    }
+
+    public DataItemStack name(String name) {
+        this.itemStack = ItemStackBuilder.of(this.itemStack).name(name).asItemStack();
+        return this;
+    }
+
+    public DataItemStack lore(String lore) {
+        this.itemStack = ItemStackBuilder.of(this.itemStack).lore(lore).asItemStack();
+        return this;
+    }
+
+    public DataItemStack lore(List<String> lore) {
+        this.itemStack = ItemStackBuilder.of(this.itemStack).lore(lore).asItemStack();
+        return this;
+    }
+
+    public DataItemStack apply(Consumer<DataItemStack> function) {
+        function.accept(this);
+        return this;
     }
 
     public GuiItem asGuiItem() {

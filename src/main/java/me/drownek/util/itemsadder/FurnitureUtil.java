@@ -1,8 +1,9 @@
-package me.drownek.util;
+package me.drownek.util.itemsadder;
 
 import dev.lone.itemsadder.api.CustomFurniture;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import me.drownek.util.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;

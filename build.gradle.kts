@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.drownek"
-version = "1.0.3"
+version = "1.0.4-dev"
 
 dependencies {
     api("com.github.cryptomorin:XSeries:10.0.0")
@@ -42,6 +42,6 @@ publishing {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(16))
     }
 }

@@ -1,9 +1,11 @@
-package me.drownek.util;
+package me.drownek.util.itemsadder;
 
 import dev.lone.itemsadder.api.CustomFurniture;
 import eu.okaeri.configs.OkaeriConfig;
 import lombok.Getter;
 import lombok.NonNull;
+import me.drownek.util.LocationUtil;
+import me.drownek.util.message.TextUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 
@@ -92,6 +94,6 @@ public class FurnitureInfo extends OkaeriConfig {
 
     @Override
     public String toString() {
-        return this.id + " w lokacji " + TextUtil.prettyFormatLocation(this.location);
+        return this.id + " - " + TextUtil.prettyFormatLocation(this.location);
     }
 }

@@ -2,6 +2,9 @@ package me.drownek.util;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import me.drownek.util.localization.LocalizationManager;
+import me.drownek.util.localization.MessageKey;
+import me.drownek.util.message.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -20,27 +23,22 @@ import java.util.stream.Stream;
 
 @UtilityClass
 public class CommandUtil {
-
-    public static final String SUCCESS_MESSAGE = "&aSuccess!";
-    public static final String INVALID_ELEMENT = "&cWrong item!";
-    public static final String ELEMENT_MISSING = "&cThere is no such item in the list!";
-    public static final String ELEMENT_ALREADY_EXIST = "&cThe item is already on the list!";
-
+    
     /*
      * Remove actions
      */
     public <T> String removeIfPresent(@NonNull Collection<T> list, T object, @Nullable Runnable successAction) {
         if (object == null) {
-            return INVALID_ELEMENT;
+            return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_INVALID_ELEMENT);
         }
         if (!list.contains(object)) {
-            return ELEMENT_MISSING;
+            return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_ELEMENT_MISSING);
         }
         list.remove(object);
         if (successAction != null) {
             successAction.run();
         }
-        return SUCCESS_MESSAGE;
+        return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_SUCCESS_MESSAGE);
     }
 
     public <T> String removeIfPresent(@NonNull Collection<T> list, T object) {
@@ -50,13 +48,13 @@ public class CommandUtil {
     public <T> String removeIfMatch(@NonNull Collection<T> list, @NonNull Predicate<T> predicate, @Nullable Runnable successAction) {
         Optional<T> any = list.stream().filter(predicate).findAny();
         if (any.isEmpty()) {
-            return ELEMENT_MISSING;
+            return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_ELEMENT_MISSING);
         }
         list.remove(any.get());
         if (successAction != null) {
             successAction.run();
         }
-        return SUCCESS_MESSAGE;
+        return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_SUCCESS_MESSAGE);
     }
 
     public <T> String removeIfMatch(@NonNull Collection<T> list, @NonNull Predicate<T> predicate) {
@@ -65,20 +63,20 @@ public class CommandUtil {
 
     public <T> String removeAtIndexAndConsume(@NonNull List<T> list, int index, Consumer<T> consumer) {
         if (index <= 0 || index > list.size()) {
-            return ELEMENT_MISSING;
+            return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_ELEMENT_MISSING);
         }
         T element = list.remove(index - 1);
         consumer.accept(element);
-        return SUCCESS_MESSAGE;
+        return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_SUCCESS_MESSAGE);
     }
 
     public <T> String removeAtIndex(@NonNull List<T> list, int index, Runnable successAction) {
         if (index <= 0 || index > list.size()) {
-            return ELEMENT_MISSING;
+            return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_ELEMENT_MISSING);
         }
         list.remove(index - 1);
         successAction.run();
-        return SUCCESS_MESSAGE;
+        return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_SUCCESS_MESSAGE);
     }
 
 
@@ -88,13 +86,13 @@ public class CommandUtil {
 
     public <T> String addIfNoneMatch(@NonNull Collection<T> list, T object, @NonNull Predicate<T> predicate, @Nullable Runnable runnable) {
         if (predicate.test(object)) {
-            return ELEMENT_ALREADY_EXIST;
+            return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_ELEMENT_ALREADY_EXIST);
         }
         list.add(object);
         if (runnable != null) {
             runnable.run();
         }
-        return SUCCESS_MESSAGE;
+        return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_SUCCESS_MESSAGE);
     }
 
     public <T> String addIfNoneMatch(@NonNull Collection<T> list, T object, @NonNull Predicate<T> predicate) {
@@ -124,11 +122,11 @@ public class CommandUtil {
                                   @NonNull Function<T, Component> mapper,
                                   @NonNull Predicate<Component> filter) {
         if (list.isEmpty()) {
-            TextUtil.message(player, "&cBrak elementów na liście");
+            TextUtil.message(player, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_EMPTY));
             return;
         }
 
-        TextUtil.message(player, "&aLista:");
+        TextUtil.message(player, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS));
 
         AtomicInteger i = new AtomicInteger(1);
         List<Component> parcelComponents = list.stream()
@@ -152,11 +150,11 @@ public class CommandUtil {
                              @NonNull Collection<T> list,
                              @NonNull Function<T, Component> mapper) {
         if (list.isEmpty()) {
-            TextUtil.message(player, "&cBrak elementów na liście");
+            TextUtil.message(player, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_EMPTY));
             return;
         }
 
-        TextUtil.message(player, "&aLista:");
+        TextUtil.message(player, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS));
 
         List<Component> parcelComponents = list.stream()
             .map(t -> {
@@ -177,11 +175,11 @@ public class CommandUtil {
     }
 
     public <T> List<String> listElements(@NonNull Collection<T> list) {
-        return listElements(list, "Lista:", t -> t.toString());
+        return listElements(list, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS), Object::toString);
     }
 
     public <T> List<String> listElements(@NonNull Collection<T> list, Function<T, String> mapper) {
-        return listElements(list, "Lista:", mapper);
+        return listElements(list, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS), mapper);
     }
 
     public <T> List<String> listElements(@NonNull Collection<T> list, String header, Function<T, String> mapper) {
@@ -191,11 +189,11 @@ public class CommandUtil {
     }
 
     public <T> List<String> listOrderElements(@NonNull Collection<T> list, Function<T, String> mapper) {
-        return listOrderElements(list, "Lista:", mapper);
+        return listOrderElements(list, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS), mapper);
     }
 
     public <T> List<String> listOrderElements(@NonNull Collection<T> list) {
-        return listOrderElements(list, "Lista:", t -> t.toString());
+        return listOrderElements(list, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS), Object::toString);
     }
 
     public <T> List<String> listOrderElements(@NonNull Collection<T> collection, String header, Function<T, String> mapper) {
@@ -208,11 +206,11 @@ public class CommandUtil {
     }
 
     public <T> Component listLocationElements(Collection<T> list, Function<T, Location> locationMapper) {
-        return listLocationElements(list, "Lista:", Object::toString, locationMapper);
+        return listLocationElements(list, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS), Object::toString, locationMapper);
     }
 
     public <T> Component listLocationElements(Collection<T> list, Function<T, String> mapper, Function<T, Location> locationMapper) {
-        return listLocationElements(list, "Lista:", mapper, locationMapper);
+        return listLocationElements(list, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS), mapper, locationMapper);
     }
 
     public <T> Component listLocationElements(@NonNull Collection<T> list, String header, Function<T, String> mapper, Function<T, Location> locationMapper) {
@@ -220,14 +218,14 @@ public class CommandUtil {
         for (T t : list) {
             String apply = mapper.apply(t);
             Location location = locationMapper.apply(t);
-            Component message = MiniMessage.miniMessage().deserialize(apply + " " + location(location));
+            Component message = MiniMessage.miniMessage().deserialize(apply + " " + TextUtil.clickableLocationRaw(location));
             component = component.appendNewline().append(message);
         }
         return component;
     }
 
     public <K, V> List<String> listMapElements(@NonNull Map<K, V> map, Function<Map.Entry<K, V>, String> mapper) {
-        return listMapElements(map, "Lista:", mapper);
+        return listMapElements(map, LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS), mapper);
     }
 
     public <K, V> List<String> listMapElements(@NonNull Map<K, V> map, String header, Function<Map.Entry<K, V>, String> mapper) {
@@ -237,7 +235,7 @@ public class CommandUtil {
     }
 
     public <T> Component listOrderElementsComponent(@NonNull Collection<T> collection, Function<T, Component> mapper) {
-        return Component.text("Lista:")
+        return Component.text(LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_LIST_CONTENTS))
             .appendNewline()
             .append(
                 Component.join(
@@ -250,16 +248,9 @@ public class CommandUtil {
     // --------------------------
     public <T> String consumeItemFromList(@NonNull List<T> list, int index, Consumer<T> consumer) {
         if (index < 0 || index >= list.size()) {
-            return "Nie ma takiego elementu na liście!";
+            return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_NO_SUCH_ELEMENT);
         }
         consumer.accept(list.get(index));
-        return SUCCESS_MESSAGE;
-    }
-    // -----------------------------
-    public String location(Location location) {
-        double x = location.getX();
-        double y = location.getY();
-        double z = location.getZ();
-        return "<click:run_command:'/tp %s %s %s'><hover:show_text:Kliknij, aby tp>[tp]</hover></click>".formatted(x, y, z);
+        return LocalizationManager.getMessage(MessageKey.COMMAND_UTIL_SUCCESS_MESSAGE);
     }
 }

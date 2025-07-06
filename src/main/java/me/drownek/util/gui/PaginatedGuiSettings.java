@@ -1,4 +1,4 @@
-package me.drownek.util;
+package me.drownek.util.gui;
 
 import com.cryptomorin.xseries.XMaterial;
 import dev.triumphteam.gui.builder.gui.PaginatedBuilder;
@@ -8,6 +8,8 @@ import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import eu.okaeri.configs.OkaeriConfig;
 import lombok.Builder;
+import me.drownek.util.itemsadder.PluginUtil;
+import me.drownek.util.message.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -90,9 +92,11 @@ public class PaginatedGuiSettings extends OkaeriConfig {
                     });
 
                     Player player = (Player) event.getPlayer();
-                    Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(PaginatedGuiSettings.class), () -> {
-                        GuiUtil.setGuiTexture(player, this.guiTexture);
-                    }, 1L);
+                    if (PluginUtil.isItemsAdderPresent()) {
+                        Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(PaginatedGuiSettings.class), () -> {
+                            GuiUtil.setGuiTexture(player, this.guiTexture);
+                        }, 1L);
+                    }
                 });
             });
     }

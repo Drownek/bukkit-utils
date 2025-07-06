@@ -1,13 +1,17 @@
-package me.drownek.util;
+package me.drownek.util.gui;
 
 import com.cryptomorin.xseries.XMaterial;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.triumphteam.gui.components.GuiAction;
 import dev.triumphteam.gui.guis.BaseGui;
 import dev.triumphteam.gui.guis.GuiItem;
-import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.Exclude;
 import lombok.Getter;
+import lombok.NonNull;
+import me.drownek.util.DataItemStack;
+import me.drownek.util.ItemStackBuilder;
+import me.drownek.util.itemsadder.PluginUtil;
+import me.drownek.util.message.TextUtil;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -15,14 +19,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal"})
 @Getter
-public class GuiItemInfo extends OkaeriConfig {
+public class GuiItemInfo {
 
-    public static @Exclude
-    final String IAINTERNAL_ICON_BLANK = "_iainternal:icon_blank";
+    public static final @Exclude String IAINTERNAL_ICON_BLANK = "_iainternal:icon_blank";
 
     // Helpers for List<Integer> positions
     public static List<Integer> fillCol(List<Integer> cols) {
@@ -135,6 +139,41 @@ public class GuiItemInfo extends OkaeriConfig {
         return modifiedStack;
     }
 
+    public GuiItemInfo withList(@NonNull String key, @NonNull List<@NonNull ?> values) {
+        ItemStack stack = this.itemStack.clone();
+        var itemMeta = stack.getItemMeta();
+
+        if (itemMeta == null) {
+            return this;
+        }
+
+        if (itemMeta.hasDisplayName() && values.size() == 1) {
+            itemMeta.setDisplayName(itemMeta.getDisplayName().replace(key, values.get(0).toString()));
+        }
+
+        if (itemMeta.hasLore()) {
+            List<String> lore = itemMeta.getLore();
+            if (lore != null) {
+                List<String> newLore = new java.util.ArrayList<>();
+
+                for (String line : lore) {
+                    if (line.contains(key)) {
+                        for (Object value : values) {
+                            newLore.add(line.replace(key, value.toString()));
+                        }
+                    } else {
+                        newLore.add(line);
+                    }
+                }
+
+                itemMeta.setLore(newLore);
+            }
+        }
+
+        stack.setItemMeta(itemMeta);
+        return new GuiItemInfo(this.positions, stack);
+    }
+
     public GuiItem asGuiItem() {
         return ItemStackBuilder.of(this.getItemStack()).asGuiItem();
     }
@@ -160,17 +199,39 @@ public class GuiItemInfo extends OkaeriConfig {
         return this;
     }
 
-    private ItemStack makeInvisible(ItemStack itemStack) {
-        CustomStack stack = CustomStack.getInstance(IAINTERNAL_ICON_BLANK);
-        ItemStack stackItemStack = stack.getItemStack();
-        int customModelData = stackItemStack.getItemMeta().getCustomModelData();
+    public GuiItemInfo name(String name) {
+        this.itemStack = ItemStackBuilder.of(this.itemStack).name(name).asItemStack();
+        return this;
+    }
 
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta != null) {
-            itemMeta.setCustomModelData(customModelData);
+    public GuiItemInfo lore(String lore) {
+        this.itemStack = ItemStackBuilder.of(this.itemStack).lore(lore).asItemStack();
+        return this;
+    }
+
+    public GuiItemInfo lore(List<String> lore) {
+        this.itemStack = ItemStackBuilder.of(this.itemStack).lore(lore).asItemStack();
+        return this;
+    }
+
+    public GuiItemInfo apply(Consumer<GuiItemInfo> function) {
+        function.accept(this);
+        return this;
+    }
+
+    private ItemStack makeInvisible(ItemStack itemStack) {
+        if (PluginUtil.isItemsAdderPresent()) {
+            CustomStack stack = CustomStack.getInstance(IAINTERNAL_ICON_BLANK);
+            ItemStack stackItemStack = stack.getItemStack();
+            int customModelData = stackItemStack.getItemMeta().getCustomModelData();
+
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if (itemMeta != null) {
+                itemMeta.setCustomModelData(customModelData);
+            }
+            itemStack.setItemMeta(itemMeta);
+            itemStack.setType(stackItemStack.getType());
         }
-        itemStack.setItemMeta(itemMeta);
-        itemStack.setType(stackItemStack.getType());
         return itemStack;
     }
 

@@ -1,4 +1,4 @@
-package me.drownek.util;
+package me.drownek.util.gui;
 
 import com.cryptomorin.xseries.XMaterial;
 import dev.triumphteam.gui.builder.gui.SimpleBuilder;
@@ -6,6 +6,8 @@ import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import eu.okaeri.configs.OkaeriConfig;
 import lombok.Builder;
+import me.drownek.util.itemsadder.PluginUtil;
+import me.drownek.util.message.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -37,14 +39,16 @@ public class GuiSettings extends OkaeriConfig {
                 if (this.fillGui) {
                     gui.getFiller().fillBorder(new GuiItem(this.filler));
                 }
-                gui.setOpenGuiAction(event -> {
-                    Player player = (Player) event.getPlayer();
-                    Bukkit.getScheduler().runTaskLater(
-                        JavaPlugin.getProvidingPlugin(GuiSettings.class),
-                        () -> GuiUtil.setGuiTexture(player, this.guiTexture),
-                        1L
-                    );
-                });
+                if (PluginUtil.isItemsAdderPresent()) {
+                    gui.setOpenGuiAction(event -> {
+                        Player player = (Player) event.getPlayer();
+                        Bukkit.getScheduler().runTaskLater(
+                            JavaPlugin.getProvidingPlugin(GuiSettings.class),
+                            () -> GuiUtil.setGuiTexture(player, this.guiTexture),
+                            1L
+                        );
+                    });
+                }
             });
     }
 }

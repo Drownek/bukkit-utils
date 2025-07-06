@@ -1,7 +1,8 @@
-package me.drownek.util;
+package me.drownek.util.message;
 
 import lombok.Getter;
 import lombok.NonNull;
+import me.drownek.util.SoundDispatcher;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
