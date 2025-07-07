@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.drownek"
-version = "1.0.4-dev"
+version = "1.0.4"
 
 dependencies {
     api("com.github.cryptomorin:XSeries:10.0.0")
