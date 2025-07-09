@@ -7,15 +7,15 @@ group = "me.drownek"
 version = "1.0.4"
 
 dependencies {
-    api("com.github.cryptomorin:XSeries:10.0.0")
+    api("com.github.cryptomorin:XSeries:13.3.3")
 
     api("dev.triumphteam:triumph-gui:3.1.11")
 
     // adventure
-    api("net.kyori:adventure-api:4.16.0")
-    api("net.kyori:adventure-text-serializer-legacy:4.16.0")
-    api("net.kyori:adventure-text-minimessage:4.16.0")
-    api("net.kyori:adventure-platform-bukkit:4.2.0")
+    api("net.kyori:adventure-api:4.23.0")
+    api("net.kyori:adventure-text-serializer-legacy:4.23.0")
+    api("net.kyori:adventure-text-minimessage:4.23.0")
+    api("net.kyori:adventure-platform-bukkit:4.4.0")
 
     api("org.jetbrains:annotations:20.1.0")
 
