@@ -21,8 +21,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class TextUtil {
@@ -69,11 +71,12 @@ public final class TextUtil {
 
         ItemMeta meta = item.getItemMeta();
         String itemName;
-
         if (meta != null && meta.hasDisplayName()) {
             itemName = meta.getDisplayName();
         } else {
-            itemName = item.getType().name();
+            itemName = Arrays.stream(item.getType().name().split("_"))
+                .map(word -> word.charAt(0) + word.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
         }
 
         return "%dx %s".formatted(item.getAmount(), itemName);

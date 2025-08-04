@@ -19,7 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.function.Consumer;
 
-@Builder
+@Builder(toBuilder = true)
 public class PaginatedGuiSettings extends OkaeriConfig {
 
     @Builder.Default
@@ -103,5 +103,9 @@ public class PaginatedGuiSettings extends OkaeriConfig {
 
     private static void updatePageTitle(String title, PaginatedGui gui) {
         gui.updateTitle(TextUtil.color(String.format(title + " (%s/%s)", gui.getCurrentPageNum(), gui.getPagesNum())));
+    }
+
+    public PaginatedGuiSettings copy() {
+        return this.toBuilder().build();
     }
 }

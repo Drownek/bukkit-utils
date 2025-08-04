@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-@Builder
+@Builder(toBuilder = true)
 public class GuiSettings extends OkaeriConfig {
 
     @Builder.Default
@@ -50,5 +50,9 @@ public class GuiSettings extends OkaeriConfig {
                     });
                 }
             });
+    }
+
+    public GuiSettings copy() {
+        return this.toBuilder().build();
     }
 }

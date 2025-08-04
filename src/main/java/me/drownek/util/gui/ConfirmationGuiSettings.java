@@ -165,4 +165,8 @@ public class ConfirmationGuiSettings extends OkaeriConfig {
     public void open(@NonNull Player player) {
         this.toGui().open(player);
     }
+
+    public ConfirmationGuiSettings copy() {
+        return this.toBuilder().build();
+    }
 }

@@ -15,6 +15,7 @@ import me.drownek.util.message.TextUtil;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -188,10 +189,15 @@ public class GuiItemInfo {
     }
 
     public ItemStack getItemStack() {
-        if (invisible) {
-            return makeInvisible(itemStack);
+        try {
+            if (invisible) {
+                return makeInvisible(itemStack);
+            }
+            return itemStack;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return itemStack != null ? itemStack : new org.bukkit.inventory.ItemStack(org.bukkit.Material.BARRIER);
         }
-        return itemStack;
     }
 
     public GuiItemInfo makeInvisible() {
@@ -220,23 +226,47 @@ public class GuiItemInfo {
     }
 
     private ItemStack makeInvisible(ItemStack itemStack) {
-        if (PluginUtil.isItemsAdderPresent()) {
-            CustomStack stack = CustomStack.getInstance(IAINTERNAL_ICON_BLANK);
-            ItemStack stackItemStack = stack.getItemStack();
-            int customModelData = stackItemStack.getItemMeta().getCustomModelData();
-
-            ItemMeta itemMeta = itemStack.getItemMeta();
-            if (itemMeta != null) {
-                itemMeta.setCustomModelData(customModelData);
-            }
-            itemStack.setItemMeta(itemMeta);
-            itemStack.setType(stackItemStack.getType());
+        if (!PluginUtil.isItemsAdderPresent()) {
+            return itemStack;
         }
+
+        CustomStack stack = CustomStack.getInstance(IAINTERNAL_ICON_BLANK);
+
+        if (stack == null) {
+            return itemStack;
+        }
+
+        ItemStack stackItemStack = stack.getItemStack();
+        if (stackItemStack == null) {
+            return itemStack;
+        }
+
+        ItemMeta stackMeta = stackItemStack.getItemMeta();
+        if (stackMeta == null || !stackMeta.hasCustomModelData()) {
+            return itemStack;
+        }
+
+        ItemStack result = itemStack.clone();
+        ItemMeta itemMeta = result.getItemMeta();
+        if (itemMeta != null) {
+            itemMeta.setCustomModelData(stackMeta.getCustomModelData());
+            result.setItemMeta(itemMeta);
+            result.setType(stackItemStack.getType());
+            return result;
+        }
+
         return itemStack;
     }
 
     public GuiItemInfo copy() {
         return new GuiItemInfo(this.positions, this.itemStack.clone(), invisible);
+    }
+
+    public int firstPosition() {
+        if (positions == null || positions.isEmpty()) {
+            throw new IllegalStateException("Item has no positions!");
+        }
+        return positions.get(0);
     }
 
     // for compatibility
