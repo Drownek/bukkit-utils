@@ -66,6 +66,11 @@ public final class Formatter {
         return this;
     }
 
+    public Formatter register(Map<String, Object> placeholders) {
+        placeholders.forEach(this::register);
+        return this;
+    }
+
     public Formatter fork() {
         return new Formatter(new LinkedHashMap<>(this.placeholders));
     }

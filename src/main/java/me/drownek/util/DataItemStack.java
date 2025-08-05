@@ -7,6 +7,8 @@ import eu.okaeri.configs.OkaeriConfig;
 import lombok.Getter;
 import lombok.NonNull;
 import me.drownek.util.gui.GuiItemInfo;
+import me.drownek.util.message.Formatter;
+import me.drownek.util.message.TextUtil;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +32,14 @@ public class DataItemStack extends OkaeriConfig {
     }
 
     public DataItemStack(Material material, String name) {
+        this(ItemStackBuilder.of(material).name(name).asItemStack());
+    }
+
+    public DataItemStack(XMaterial material, String name, List<String> lore) {
+        this(ItemStackBuilder.of(material).name(name).lore(lore).asItemStack());
+    }
+
+    public DataItemStack(XMaterial material, String name) {
         this(ItemStackBuilder.of(material).name(name).asItemStack());
     }
 
@@ -82,6 +92,29 @@ public class DataItemStack extends OkaeriConfig {
             modifiedStack = modifiedStack.with(entry.getKey(), entry.getValue());
         }
         return modifiedStack;
+    }
+
+    public DataItemStack with(Formatter formatter) {
+        ItemStack stack = this.itemStack.clone();
+        var itemMeta = stack.getItemMeta();
+
+        if (itemMeta == null) {
+            return this;
+        }
+
+        if (itemMeta.hasDisplayName()) {
+            itemMeta.setDisplayName(TextUtil.color(formatter.format(itemMeta.getDisplayName())));
+        }
+
+        if (itemMeta.hasLore()) {
+            List<String> lore = itemMeta.getLore();
+            if (lore != null) {
+                itemMeta.setLore(TextUtil.color(formatter.format(lore)));
+            }
+        }
+
+        stack.setItemMeta(itemMeta);
+        return new DataItemStack(stack);
     }
 
     public DataItemStack name(String name) {

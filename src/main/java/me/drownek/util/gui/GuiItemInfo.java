@@ -8,14 +8,13 @@ import dev.triumphteam.gui.guis.GuiItem;
 import eu.okaeri.configs.annotation.Exclude;
 import lombok.Getter;
 import lombok.NonNull;
-import me.drownek.util.DataItemStack;
 import me.drownek.util.ItemStackBuilder;
 import me.drownek.util.itemsadder.PluginUtil;
+import me.drownek.util.message.Formatter;
 import me.drownek.util.message.TextUtil;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,6 +172,29 @@ public class GuiItemInfo {
 
         stack.setItemMeta(itemMeta);
         return new GuiItemInfo(this.positions, stack);
+    }
+
+    public GuiItemInfo with(Formatter formatter) {
+        ItemStack stack = this.itemStack.clone();
+        var itemMeta = stack.getItemMeta();
+
+        if (itemMeta == null) {
+            return this;
+        }
+
+        if (itemMeta.hasDisplayName()) {
+            itemMeta.setDisplayName(TextUtil.color(formatter.format(itemMeta.getDisplayName())));
+        }
+
+        if (itemMeta.hasLore()) {
+            List<String> lore = itemMeta.getLore();
+            if (lore != null) {
+                itemMeta.setLore(TextUtil.color(formatter.format(lore)));
+            }
+        }
+
+        stack.setItemMeta(itemMeta);
+        return this.copy().setItemStack(stack);
     }
 
     public GuiItem asGuiItem() {

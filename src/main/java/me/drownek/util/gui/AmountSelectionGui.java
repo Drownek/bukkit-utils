@@ -5,15 +5,20 @@ import dev.triumphteam.gui.components.GuiAction;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.With;
+import lombok.experimental.WithBy;
+import me.drownek.util.DataItemStack;
 import me.drownek.util.localization.LocalizationManager;
 import me.drownek.util.localization.MessageKey;
+import me.drownek.util.message.Formatter;
 import me.drownek.util.message.TextUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,10 +38,6 @@ public final class AmountSelectionGui {
     private static final int MIN_GUI_ROWS = 1;
     private static final int MAX_GUI_ROWS = 6;
 
-    @NonNull
-    private final Player player;
-
-    @NonNull
     private final Consumer<Integer> onConfirm;
 
     @NonNull
@@ -79,31 +80,27 @@ public final class AmountSelectionGui {
     private final GuiItemInfo decreaseItem = new GuiItemInfo(11, XMaterial.RED_STAINED_GLASS_PANE, "&c&l-");
 
     @Builder.Default
-    private final GuiItemInfo confirmItem = new GuiItemInfo(22, XMaterial.LIME_DYE, LocalizationManager.getMessage(MessageKey.AMOUNT_GUI_CONFIRM));
+    private final GuiItemInfo cancelItem = new GuiItemInfo(22, XMaterial.BARRIER, LocalizationManager.getMessage(MessageKey.AMOUNT_GUI_CANCEL));
 
     @Builder.Default
-    private final GuiItemInfo cancelItem = new GuiItemInfo(21, XMaterial.RED_DYE, LocalizationManager.getMessage(MessageKey.AMOUNT_GUI_CANCEL));
+    private final DataItemStack fillerItem = new DataItemStack(XMaterial.BLACK_STAINED_GLASS_PANE, " ");
 
     @Builder.Default
-    private final GuiItemInfo fillerItem = new GuiItemInfo(Collections.emptyList(), XMaterial.BLACK_STAINED_GLASS_PANE, " ");
-
-    @Builder.Default
-    private final Function<UpdateContext, GuiItemInfo> infoItemUpdater = context ->
-        context.originalInfoItem().with("{AMOUNT}", context.currentAmount());
+    private final Function<Integer, Map<String, Object>> additionalPlaceholders = integer -> Map.of();
 
     @Builder.Default
     private final boolean closeOnConfirm = true;
 
     @Builder.Default
-    private final boolean allowMiddleClick = false;
+    private final boolean showCancelItem = true;
 
-    public void open() {
+    public void open(@NonNull Player player) {
         validateConfiguration();
 
         final var gui = createGui();
         final var state = new GuiState(clampValue(initialValue));
 
-        setupGui(gui, state);
+        setupGui(gui, state, player);
         gui.open(player);
     }
 
@@ -114,6 +111,7 @@ public final class AmountSelectionGui {
         require(decreaseStep > 0, "decreaseStep must be positive");
         require(increaseStepShift > 0, "increaseStepShift must be positive");
         require(decreaseStepShift > 0, "decreaseStepShift must be positive");
+        require(onConfirm != null, "onConfirm cannot be null");
     }
 
     private void require(boolean condition, String message) {
@@ -130,8 +128,8 @@ public final class AmountSelectionGui {
             .create();
     }
 
-    private void setupGui(Gui gui, GuiState state) {
-        final var confirmAction = createConfirmationAction(state);
+    private void setupGui(Gui gui, GuiState state, Player player) {
+        final var confirmAction = createConfirmationAction(state, player);
 
         if (shouldAddFillerItems()) {
             gui.getFiller().fill(fillerItem.asGuiItem());
@@ -143,7 +141,7 @@ public final class AmountSelectionGui {
             }
         });
 
-        setupControls(gui, state, confirmAction);
+        setupControls(gui, state, confirmAction, player);
         updateDisplay(gui, state, confirmAction);
     }
 
@@ -153,7 +151,7 @@ public final class AmountSelectionGui {
             fillerItem.getItemStack().getType() != XMaterial.AIR.get();
     }
 
-    private GuiAction<InventoryClickEvent> createConfirmationAction(GuiState state) {
+    private GuiAction<InventoryClickEvent> createConfirmationAction(GuiState state, Player player) {
         return event -> {
             state.confirm();
             if (closeOnConfirm) {
@@ -163,12 +161,13 @@ public final class AmountSelectionGui {
         };
     }
 
-    private void setupControls(Gui gui, GuiState state, GuiAction<InventoryClickEvent> confirmAction) {
+    private void setupControls(Gui gui, GuiState state, GuiAction<InventoryClickEvent> confirmAction, Player player) {
         setupAmountControl(gui, state, confirmAction, increaseItem, this::createIncreaseOperator);
         setupAmountControl(gui, state, confirmAction, decreaseItem, this::createDecreaseOperator);
 
-        confirmItem.setGuiItem(gui, confirmAction);
-        cancelItem.setGuiItem(gui, event -> player.closeInventory());
+        if (showCancelItem) {
+            cancelItem.setGuiItem(gui, event -> player.closeInventory());
+        }
     }
 
     private void setupAmountControl(
@@ -179,10 +178,6 @@ public final class AmountSelectionGui {
         Function<Boolean, IntUnaryOperator> operatorFactory
     ) {
         controlItem.setGuiItem(gui, event -> {
-            if (!allowMiddleClick && event.getClick().name().contains("MIDDLE")) {
-                return;
-            }
-
             final var operator = operatorFactory.apply(event.isShiftClick());
             final var newAmount = clampValue(operator.applyAsInt(state.getAmount()));
             state.setAmount(newAmount);
@@ -201,8 +196,11 @@ public final class AmountSelectionGui {
     }
 
     private void updateDisplay(Gui gui, GuiState state, GuiAction<InventoryClickEvent> confirmAction) {
-        final var context = new UpdateContext(state.getAmount(), displayItem);
-        final var updatedInfo = infoItemUpdater.apply(context);
+        var formatter = new Formatter().register("{VALUE}", state.getAmount());
+        Map<String, Object> additionalPlaceholders = this.additionalPlaceholders.apply(state.getAmount());
+        formatter.register(additionalPlaceholders);
+
+        final var updatedInfo = displayItem.with(formatter);
         final var displayStack = createDisplayStack(updatedInfo, state.getAmount());
 
         gui.updateItem(updatedInfo.firstPosition(), new GuiItem(displayStack, confirmAction));
@@ -246,6 +244,4 @@ public final class AmountSelectionGui {
             return confirmed.get();
         }
     }
-
-    public record UpdateContext(int currentAmount, GuiItemInfo originalInfoItem) {}
 }

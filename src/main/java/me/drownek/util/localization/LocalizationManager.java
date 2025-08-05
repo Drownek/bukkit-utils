@@ -36,7 +36,6 @@ public class LocalizationManager {
         englishMessages.put(MessageKey.WAITING_TASK_ALREADY_DOING_ACTION, "&cYou already in middle of some action!");
         englishMessages.put(MessageKey.WAITING_TASK_SNEAK_TO_CANCEL, "Press {keybind} to cancel");
 
-        englishMessages.put(MessageKey.AMOUNT_GUI_CONFIRM, "&aConfirm");
         englishMessages.put(MessageKey.AMOUNT_GUI_CANCEL, "&aCancel");
         messages.put(Locale.ENGLISH, englishMessages);
 
@@ -66,7 +65,6 @@ public class LocalizationManager {
         polishMessages.put(MessageKey.WAITING_TASK_ALREADY_DOING_ACTION, "&cJesteś już w trakcie jakiejś akcji!");
         polishMessages.put(MessageKey.WAITING_TASK_SNEAK_TO_CANCEL, "Naciśnij {keybind} aby anulować");
 
-        polishMessages.put(MessageKey.AMOUNT_GUI_CONFIRM, "&aPotwierdź");
         polishMessages.put(MessageKey.AMOUNT_GUI_CANCEL, "&aAnuluj");
 
         messages.put(new Locale("pl", "PL"), polishMessages);
