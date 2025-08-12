@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.drownek:bukkit-utils:1.0.6")
+    implementation("com.github.Drownek:bukkit-utils:1.0.6")
 }
 ```
 ### Gradle (Groovy)
@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.drownek:bukkit-utils:1.0.6'
+    implementation 'com.github.Drownek:bukkit-utils:1.0.6'
 }
 ```
 ### Maven
@@ -35,7 +35,7 @@ dependencies {
 
 <dependencies>
     <dependency>
-        <groupId>com.github.drownek</groupId>
+        <groupId>com.github.Drownek</groupId>
         <artifactId>bukkit-utils</artifactId>
         <version>1.0.6</version>
     </dependency>
